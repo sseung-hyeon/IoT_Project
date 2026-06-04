@@ -1,4 +1,5 @@
 #include "StateMachine.h"
+#include "config.h"
 #include "Logger.h"
 #include "RFIDManager.h"
 #include "KeypadManager.h"
@@ -9,6 +10,8 @@
 #include "ShockSensor.h"
 #include "BuzzerManager.h"
 #include "RGBManager.h"
+#include "DisplayManager.h"
+
 
 static RFIDManager rfid;
 static KeypadManager keypad;
@@ -19,6 +22,7 @@ static WiFiManager wifi;
 static ShockSensor shockSensor;
 static BuzzerManager buzzer;
 static RGBManager rgb;
+static DisplayManager display;
 
 StateMachine::StateMachine()
 {
@@ -40,11 +44,13 @@ void StateMachine::begin()
     shockSensor.begin();
     buzzer.begin();
     rgb.begin();
+    display.begin();
 }
 
 void StateMachine::update()
 {
-    if (shockSensor.isShockDetected())
+    if (currentState != LockerState::ALERT && 
+        shockSensor.isShockDetected())
     {
         Logger::error("[ALERT] Shock Detected");
 
@@ -146,10 +152,9 @@ void StateMachine::handleIdle()
         Logger::info("[FSM] Enter IDLE");
 
         rgb.showNormal();
+        display.showIdle();
 
         stateJustEntered = false;
-
-        changeState(LockerState::AUTH_CARD);
     }
 }
 
@@ -168,6 +173,7 @@ void StateMachine::handleAuthCard()
 
         buzzer.playSuccessTone();
         rgb.showSuccess();
+        display.showCardSuccess();
 
         changeState(LockerState::AUTH_PIN);
     }
@@ -179,6 +185,8 @@ void StateMachine::handleAuthPin()
     {
         Logger::info("[FSM] Enter AUTH_PIN");
 
+        display.showPasswordInput(0);
+        
         stateJustEntered = false;
     }
 
@@ -188,6 +196,7 @@ void StateMachine::handleAuthPin()
 
         buzzer.playSuccessTone();
         rgb.showSuccess();
+        display.showPasswordSuccess();
 
         changeState(LockerState::DOOR_OPEN);
     }
@@ -200,10 +209,15 @@ void StateMachine::handleDoorOpen()
             Logger::info("[FSM] Enter DOOR_OPEN");
 
             door.openDoor();
+            display.showDoorOpen();
 
             stateJustEntered = false;
 
             changeState(LockerState::MEASURE);
+
+            // TODO(조립 후):
+            // 실제 문 열림 유지 시간 적용
+            // 사용자가 물건을 넣거나 꺼낼 시간을 제공
         }
 }
 
@@ -258,6 +272,7 @@ void StateMachine::handleDoorClose()
         stateJustEntered = false;
 
         door.closeDoor();
+        display.showDoorClose();
 
         changeState(LockerState::IDLE);
     }
@@ -270,8 +285,8 @@ void StateMachine::handleAlert()
         Logger::error("[FSM] Enter ALERT");
 
         buzzer.playAlertTone();
-
         rgb.showAlert();
+        display.showAlert();
 
         stateJustEntered = false;
 
