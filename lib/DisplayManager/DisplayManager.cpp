@@ -5,10 +5,14 @@ void DisplayManager::begin()
 {
     Logger::info("[DISPLAY] Initialized");
 
-    // TODO(조립 후):
+    // TODO(조립 후)
     // lcd.init();
     // lcd.backlight();
 }
+
+// ======================================================
+// 대기 화면
+// ======================================================
 
 void DisplayManager::showIdle()
 {
@@ -16,6 +20,10 @@ void DisplayManager::showIdle()
     Logger::info("Smart Locker");
     Logger::info("카드를 태그하세요");
 }
+
+// ======================================================
+// 카드 인증
+// ======================================================
 
 void DisplayManager::showCardSuccess()
 {
@@ -30,6 +38,10 @@ void DisplayManager::showCardFail()
     Logger::info("카드를");
     Logger::info("다시 태그하세요");
 }
+
+// ======================================================
+// 비밀번호 입력
+// ======================================================
 
 void DisplayManager::showPasswordInput(uint8_t length)
 {
@@ -52,6 +64,10 @@ void DisplayManager::showPasswordInput(uint8_t length)
     Logger::info(mask);
 }
 
+// ======================================================
+// 비밀번호 결과
+// ======================================================
+
 void DisplayManager::showPasswordSuccess()
 {
     Logger::info("[LCD]");
@@ -66,6 +82,10 @@ void DisplayManager::showPasswordFail()
     Logger::info("다시 입력");
 }
 
+// ======================================================
+// 문 상태
+// ======================================================
+
 void DisplayManager::showDoorOpen()
 {
     Logger::info("[LCD]");
@@ -77,6 +97,10 @@ void DisplayManager::showDoorClose()
     Logger::info("[LCD]");
     Logger::info("문을 닫습니다");
 }
+
+// ======================================================
+// 경고 상태
+// ======================================================
 
 void DisplayManager::showAlert()
 {

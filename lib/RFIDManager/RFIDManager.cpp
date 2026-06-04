@@ -11,7 +11,8 @@ void RFIDManager::begin()
 
 bool RFIDManager::isCardDetected()
 {
-    Logger::info("[MOCK] RFID Card Detected");
+    // Logger::info("[MOCK] RFID Card Detected");
+    Serial.println("[MOCK] RFID Card Valid");
 
     // TODO (조립 후)
     // RC522 UID 읽기

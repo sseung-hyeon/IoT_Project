@@ -9,6 +9,7 @@ public:
     void begin();
 
     bool isCardDetected();
+    bool isCardValid();
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "StateMachine.h"
+#include "config.h"
 
 StateMachine lockerFSM;
 

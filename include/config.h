@@ -115,6 +115,9 @@
 // 비밀번호 길이
 #define PASSWORD_LENGTH      4
 
+// 최대 인증 실패 횟수
+#define MAX_AUTH_FAIL_COUNT  5          // 카드/PIN 통합 실패 허용 횟수
+
 // 인증 제한 시간
 #define AUTH_TIMEOUT_MS      30000UL    // 30초
 

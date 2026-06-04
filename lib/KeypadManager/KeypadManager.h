@@ -9,6 +9,7 @@ public:
     void begin();
 
     bool isPasswordCorrect();
+    bool hasInput();
 };
 
 #endif

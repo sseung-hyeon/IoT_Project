@@ -1,5 +1,4 @@
 #include "StateMachine.h"
-#include "config.h"
 #include "Logger.h"
 #include "RFIDManager.h"
 #include "KeypadManager.h"
@@ -11,6 +10,7 @@
 #include "BuzzerManager.h"
 #include "RGBManager.h"
 #include "DisplayManager.h"
+#include "FailCounter.h"
 
 
 static RFIDManager rfid;
@@ -23,12 +23,16 @@ static ShockSensor shockSensor;
 static BuzzerManager buzzer;
 static RGBManager rgb;
 static DisplayManager display;
+static FailCounter failCounter;
+
 
 StateMachine::StateMachine()
 {
     currentState = LockerState::IDLE;
     stateJustEntered = true;
     lastMeasuredWeight = 0.0f;
+    authStartTime = 0;
+    doorOpenStartTime = 0;
 }
 
 void StateMachine::begin()
@@ -45,6 +49,7 @@ void StateMachine::begin()
     buzzer.begin();
     rgb.begin();
     display.begin();
+    failCounter.reset();
 }
 
 void StateMachine::update()
@@ -52,7 +57,7 @@ void StateMachine::update()
     if (currentState != LockerState::ALERT && 
         shockSensor.isShockDetected())
     {
-        Logger::error("[ALERT] Shock Detected");
+        Logger::error("[ALERT] Shock Detected"); 
 
         changeState(LockerState::ALERT);
 
@@ -155,6 +160,10 @@ void StateMachine::handleIdle()
         display.showIdle();
 
         stateJustEntered = false;
+
+        #if MOCK_AUTO_SUCCESS
+            changeState(LockerState::AUTH_CARD);
+        #endif
     }
 }
 
@@ -177,6 +186,20 @@ void StateMachine::handleAuthCard()
 
         changeState(LockerState::AUTH_PIN);
     }
+    // TODO(조립 후)
+    //
+    // 카드 인식 실패 시
+    //
+    // failCounter.increase();
+    //
+    // display.showCardFail();
+    //
+    // buzzer.playErrorTone();
+    //
+    // if (failCounter.isLimitReached())
+    // {
+    //     changeState(LockerState::ALERT);
+    // }
 }
 
 void StateMachine::handleAuthPin()
@@ -187,7 +210,18 @@ void StateMachine::handleAuthPin()
 
         display.showPasswordInput(0);
         
+        authStartTime = millis();
+
         stateJustEntered = false;
+    }
+
+    if (millis() - authStartTime > AUTH_TIMEOUT_MS)
+    {
+        Logger::warn("[AUTH] Timeout");
+
+        changeState(LockerState::IDLE);
+
+        return;
     }
 
     if (keypad.isPasswordCorrect())
@@ -197,9 +231,21 @@ void StateMachine::handleAuthPin()
         buzzer.playSuccessTone();
         rgb.showSuccess();
         display.showPasswordSuccess();
+        failCounter.reset();
 
         changeState(LockerState::DOOR_OPEN);
     }
+    
+        // TODO(조립 후)
+        // 비밀번호 실패 시
+        //
+        // failCounter.increase();
+        // display.showPasswordFail();
+        //
+        // if (failCounter.isLimitReached())
+        // {
+        //     changeState(LockerState::ALERT);
+        // }
 }
 
 void StateMachine::handleDoorOpen()
@@ -209,23 +255,30 @@ void StateMachine::handleDoorOpen()
             Logger::info("[FSM] Enter DOOR_OPEN");
 
             door.openDoor();
+
             display.showDoorOpen();
+
+            doorOpenStartTime = millis(); // 문 열림 시작 시각 저장
 
             stateJustEntered = false;
 
-            changeState(LockerState::MEASURE);
-
-            // TODO(조립 후):
-            // 실제 문 열림 유지 시간 적용
-            // 사용자가 물건을 넣거나 꺼낼 시간을 제공
+            return;
         }
+        
+        //문을 일정시간 열어둠
+        if (millis() - doorOpenStartTime > DOOR_OPEN_TIMEOUT_MS)
+            {
+                Logger::info("[FSM] Door Open Timeout");
+
+                changeState(LockerState::MEASURE);
+            }
 }
 
 void StateMachine::handleMeasure()
 {
     if (stateJustEntered)
     {
-        Logger::info("[FSM] MEASURE");
+        Logger::info("[FSM] Enter MEASURE");
 
         stateJustEntered = false;
 
@@ -250,7 +303,7 @@ void StateMachine::handleNotify()
 {
     if (stateJustEntered)
     {
-        Logger::info("[FSM] NOTIFY");
+        Logger::info("[FSM] Enter NOTIFY");
 
         stateJustEntered = false;
 
@@ -267,7 +320,7 @@ void StateMachine::handleDoorClose()
 {
     if (stateJustEntered)
     {    
-        Logger::info("[FSM] DOOR_CLOSE");
+        Logger::info("[FSM] Enter DOOR_CLOSE");
         
         stateJustEntered = false;
 
@@ -287,6 +340,9 @@ void StateMachine::handleAlert()
         buzzer.playAlertTone();
         rgb.showAlert();
         display.showAlert();
+
+        // TODO(조립 후)
+        // 관리자 해제 또는 타이머까지 ALERT 유지
 
         stateJustEntered = false;
 

@@ -11,7 +11,8 @@ void KeypadManager::begin()
 
 bool KeypadManager::isPasswordCorrect()
 {
-    Logger::info("[MOCK] Password Correct");
+    // Logger::info("[MOCK] Password Correct");
+    Serial.println("[MOCK] Keypad Input");
 
     // TODO(조립 후):
     // 실제 키패드 입력 검증
