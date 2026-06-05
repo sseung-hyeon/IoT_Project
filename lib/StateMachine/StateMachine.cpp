@@ -54,6 +54,9 @@ void StateMachine::begin()
 
 void StateMachine::update()
 {
+    // ALERT 반복음 갱신
+    buzzer.updateAlertTone();
+
     if (currentState != LockerState::ALERT && 
         shockSensor.isShockDetected())
     {
@@ -264,6 +267,8 @@ void StateMachine::handleAuthPin()
         // LCD 표시
         display.showPasswordFail();
 
+        rgb.showError();
+
         // 실패 횟수 출력
         Logger::warn(
             "[AUTH] Fail Count = " +
@@ -376,8 +381,11 @@ void StateMachine::handleAlert()
         Logger::error("[FSM] Enter ALERT");
 
         failCounter.reset();
-        buzzer.playAlertTone();
+
+        buzzer.startAlertTone();
+
         rgb.showAlert();
+
         display.showAlert();
 
         stateJustEntered = false;
@@ -393,5 +401,7 @@ void StateMachine::clearAlert()
 {
     Logger::info("[FSM] ALERT Cleared");
 
+    buzzer.stopAlertTone();
+    
     changeState(LockerState::IDLE);
 }

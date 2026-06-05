@@ -1,19 +1,36 @@
 #include "ShockSensor.h"
 #include "Logger.h"
+#include "config.h"
+
+static volatile bool gShockDetected = false;
+
+void shockISR()
+{
+    gShockDetected = true;
+}
 
 void ShockSensor::begin()
 {
     Logger::info("[SHOCK] Initialized");
 
-    // TODO(조립 후):
-    // pinMode(PIN_SHOCK, INPUT_PULLUP);
-    // attachInterrupt(...)
+    pinMode(PIN_SHOCK, INPUT_PULLUP);
 }
 
 bool ShockSensor::isShockDetected()
 {
-    // TODO(조립 후):
-    // 실제 충격 감지 구현
+    // 충격 감지
+    if (digitalRead(PIN_SHOCK) == LOW)
+    {
+        // 노이즈 제거를 위해 20ms 후 재확인
+        delay(SHOCK_DEBOUNCE_MS);
+
+        if (digitalRead(PIN_SHOCK) == LOW)
+        {
+            Logger::warn("[SHOCK] Shock Detected");
+
+            return true;
+        }
+    }    
 
     return false;
 }

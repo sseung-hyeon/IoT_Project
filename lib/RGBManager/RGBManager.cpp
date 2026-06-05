@@ -1,42 +1,79 @@
 #include "RGBManager.h"
 #include "Logger.h"
+#include "config.h"
+
+RGBManager::RGBManager()
+    : pixels(
+        NUM_PIXELS,
+        PIN_NEOPIXEL,
+        NEO_GRB + NEO_KHZ800
+    )
+{
+
+}
 
 void RGBManager::begin()
 {
     Logger::info("[RGB] Initialized");
 
-    // TODO(조립 후):
-    // NeoPixel.begin();
+    pixels.begin();
+    pixels.clear();
+    pixels.show();
 }
 
 void RGBManager::showNormal()
 {
-    Logger::info("[MOCK] RGB NORMAL (BLUE)");
+    Logger::info("[RGB] NORMAL");
 
-    // TODO(조립 후):
-    // 파랑 LED 출력
+    pixels.clear();
+
 }
 
 void RGBManager::showSuccess()
 {
-    Logger::info("[MOCK] RGB SUCCESS (GREEN)");
+    Logger::info("[RGB] SUCCESS");
 
-    // TODO(조립 후):
-    // 초록 LED 출력
+    pixels.clear();
+
+    pixels.setPixelColor(
+        0,
+        pixels.Color(0,255,0)
+    );
+
+    pixels.show();
 }
 
 void RGBManager::showError()
 {
-    Logger::info("[MOCK] RGB ERROR (RED BLINK)");
+    Logger::info("[RGB] ERROR");
 
-    // TODO(조립 후):
-    // 빨강 3회 점멸
+    for (int i = 0; i < 3; i++)
+    {
+        pixels.setPixelColor(
+            0,
+            pixels.Color(255,0,0)
+        );
+
+        pixels.show();
+
+        delay(150);
+
+        pixels.clear();
+
+        pixels.show();
+
+        delay(150);
+    }
 }
 
 void RGBManager::showAlert()
 {
-    Logger::info("[MOCK] RGB ALERT (RED FLASH)");
+    Logger::info("[RGB] ALERT");
 
-    // TODO(조립 후):
-    // 빨강 지속 점멸
+    pixels.setPixelColor(
+        0,
+        pixels.Color(255,0,0)
+    );
+
+    pixels.show();
 }

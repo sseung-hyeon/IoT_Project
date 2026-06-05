@@ -2,13 +2,25 @@
 #include "Logger.h"
 #include "config.h"
 
+#include <LiquidCrystal_I2C.h>
+
+DisplayManager::DisplayManager()
+    : lcd(LCD_I2C_ADDRESS, 16, 2)
+{
+
+}
+
 void DisplayManager::begin()
 {
     Logger::info("[DISPLAY] Initialized");
 
-    // TODO(조립 후)
-    // lcd.init();
-    // lcd.backlight();
+    lcd.init();
+    lcd.backlight();
+
+    lcd.clear();
+
+    lcd.setCursor(0, 0);
+    lcd.print("Smart Locker");
 }
 
 // ======================================================
@@ -20,6 +32,14 @@ void DisplayManager::showIdle()
     Logger::info("[LCD]");
     Logger::info("Smart Locker");
     Logger::info("카드를 태그하세요");
+
+    lcd.clear();
+
+    lcd.setCursor(0, 0);
+    lcd.print("Smart Locker");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Tag Card");
 }
 
 // ======================================================

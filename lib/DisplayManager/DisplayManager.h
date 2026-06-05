@@ -2,10 +2,13 @@
 #define DISPLAY_MANAGER_H
 
 #include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
 
 class DisplayManager
 {
 public:
+
+    DisplayManager();
 
     // LCD 초기화
     void begin();
@@ -30,6 +33,11 @@ public:
 
     // 경고
     void showAlert();
+
+private:
+
+    // 16x2 I2C LCD
+    LiquidCrystal_I2C lcd;
 };
 
 #endif

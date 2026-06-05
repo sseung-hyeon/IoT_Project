@@ -24,6 +24,12 @@ void RFIDManager::begin()
 
 bool RFIDManager::isCardDetected()
 {
+#if MOCK_AUTO_SUCCESS
+
+    return true;
+
+#else
+
     if (!mfrc522.PICC_IsNewCardPresent())
     {
         return false;
@@ -37,10 +43,8 @@ bool RFIDManager::isCardDetected()
     Logger::info("[RFID] Card Detected");
 
     return true;
-
-    #if MOCK_AUTO_SUCCESS // MOCK 
-        return true;
-    #endif
+    
+#endif
 }
 
 // TODO(하드웨어 연결 후)
