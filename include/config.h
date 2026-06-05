@@ -27,6 +27,16 @@
 // MISO = 50
 
 // ======================================================
+// 등록된 RFID 카드 UID
+// 실제 카드 태깅 후 값 수정
+// ======================================================
+
+#define RFID_UID_0 0xDE
+#define RFID_UID_1 0xAD
+#define RFID_UID_2 0xBE
+#define RFID_UID_3 0xEF
+
+// ======================================================
 // Servo Motor (SG90)               서보모터
 // ======================================================
 
@@ -88,6 +98,8 @@
 #define PIN_ESP_RX       19   
 #define PIN_ESP_TX       18   
 
+#define ESP_BAUDRATE 115200
+
 // ==========================================================
 // I2C LCD                          LCD
 // ==========================================================
@@ -138,5 +150,38 @@
 
 #define MOCK_PACKAGE_DETECTED true
 #define MOCK_WEIGHT_KG 0.75f
+
+// ======================================================
+// WIFI
+// ======================================================
+
+#define WIFI_SSID      "여기에_와이파이이름"
+#define WIFI_PASSWORD  "여기에_와이파이비밀번호"
+
+// ======================================================
+// FIREBASE
+// ======================================================
+
+#define FIREBASE_HOST \
+"smartlocker-ba303-default-rtdb.asia-southeast1.firebasedatabase.app"
+
+// 보관함 루트 경로
+#define FIREBASE_LOCKER_PATH "/locker"
+
+// 데이터 키
+#define FIREBASE_KEY_WEIGHT       "weightKg"
+#define FIREBASE_KEY_PACKAGE      "packageDetected"
+#define FIREBASE_KEY_ALERT        "alert"
+#define FIREBASE_KEY_DOOR         "doorOpen"
+#define FIREBASE_KEY_CLEAR_ALERT  "clearAlert"
+
+// ======================================================
+// Firebase Mock
+// ======================================================
+
+// 하드웨어 없이 Firebase 동작 시뮬레이션
+#define FIREBASE_MOCK_MODE true
+
+
 
 #endif

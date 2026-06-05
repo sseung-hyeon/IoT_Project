@@ -9,6 +9,11 @@ public:
     void begin();
 
     bool isCardDetected();
+
+private:
+    bool mockDetected;
+
+    bool isAuthorizedCard();
 };
 
 #endif

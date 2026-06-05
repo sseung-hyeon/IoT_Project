@@ -251,9 +251,7 @@ void StateMachine::handleAuthPin()
         return;
     }
 
-    // ======================================================
     // 비밀번호 실패 처리
-    // ======================================================
     if (keypad.isPasswordFailed())
     {
         Logger::warn("[AUTH] Password Failed");
@@ -300,6 +298,8 @@ void StateMachine::handleDoorOpen()
             door.openDoor();
 
             display.showDoorOpen();
+            
+            wifi.uploadDoorStatus(true);
 
             doorOpenStartTime = millis(); // 문 열림 시작 시각 저장
 
@@ -368,7 +368,10 @@ void StateMachine::handleDoorClose()
         stateJustEntered = false;
 
         door.closeDoor();
+
         display.showDoorClose();
+
+        wifi.uploadDoorStatus(false);
 
         changeState(LockerState::IDLE);
     }
@@ -388,13 +391,22 @@ void StateMachine::handleAlert()
 
         display.showAlert();
 
+        wifi.uploadAlertStatus(true);
+
         stateJustEntered = false;
     }
 
-    // TODO(조립 후)
-    // 등록된 RFID 카드 태그 또는
-    // 앱 원격 해제 명령 수신 시
-    // clearAlert() 호출
+    // 앱에서 ALERT 해제 요청 확인
+    if (wifi.isAlertClearRequested())
+    {
+        Logger::info(
+            "[ALERT] Remote Clear Request"
+        );
+
+        clearAlert();
+
+        return;
+    }
 }
 
 void StateMachine::clearAlert()
@@ -402,6 +414,10 @@ void StateMachine::clearAlert()
     Logger::info("[FSM] ALERT Cleared");
 
     buzzer.stopAlertTone();
-    
+
+    wifi.uploadAlertStatus(false);
+
+    wifi.clearAlertRequest();
+
     changeState(LockerState::IDLE);
 }
