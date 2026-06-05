@@ -1,5 +1,6 @@
 #include "DisplayManager.h"
 #include "Logger.h"
+#include "config.h"
 
 void DisplayManager::begin()
 {
@@ -28,8 +29,8 @@ void DisplayManager::showIdle()
 void DisplayManager::showCardSuccess()
 {
     Logger::info("[LCD]");
-    Logger::info("카드 확인 완료");
-    Logger::info("비밀번호 입력");
+    Logger::info("카드 확인");
+    Logger::info("성공");
 }
 
 void DisplayManager::showCardFail()
@@ -47,7 +48,7 @@ void DisplayManager::showPasswordInput(uint8_t length)
 {
     String mask = "";
 
-    for (uint8_t i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < PASSWORD_LENGTH; i++)
     {
         if (i < length)
         {
@@ -72,7 +73,7 @@ void DisplayManager::showPasswordSuccess()
 {
     Logger::info("[LCD]");
     Logger::info("비밀번호 확인");
-    Logger::info("완료");
+    Logger::info("성공");
 }
 
 void DisplayManager::showPasswordFail()
@@ -95,7 +96,7 @@ void DisplayManager::showDoorOpen()
 void DisplayManager::showDoorClose()
 {
     Logger::info("[LCD]");
-    Logger::info("문을 닫습니다");
+    Logger::info("문이 닫혔습니다");
 }
 
 // ======================================================
@@ -106,5 +107,5 @@ void DisplayManager::showAlert()
 {
     Logger::info("[LCD]");
     Logger::info("경고!");
-    Logger::info("충격 감지");
+    Logger::info("보안 확인 필요!");
 }

@@ -49,6 +49,7 @@ private:
     void handleNotify();
     void handleDoorClose();
     void handleAlert();
+    void clearAlert();
 };
 
 #endif

@@ -209,11 +209,20 @@ void StateMachine::handleAuthPin()
         Logger::info("[FSM] Enter AUTH_PIN");
 
         display.showPasswordInput(0);
-        
+
         authStartTime = millis();
 
         stateJustEntered = false;
     }
+
+    // 입력 표시
+    if (keypad.hasInputChanged())
+        {
+            display.showPasswordInput(
+                keypad.getInputLength()
+            );
+        }
+        
 
     if (millis() - authStartTime > AUTH_TIMEOUT_MS)
     {
@@ -231,21 +240,50 @@ void StateMachine::handleAuthPin()
         buzzer.playSuccessTone();
         rgb.showSuccess();
         display.showPasswordSuccess();
+
         failCounter.reset();
 
         changeState(LockerState::DOOR_OPEN);
+
+        return;
     }
-    
-        // TODO(조립 후)
-        // 비밀번호 실패 시
-        //
-        // failCounter.increase();
-        // display.showPasswordFail();
-        //
-        // if (failCounter.isLimitReached())
-        // {
-        //     changeState(LockerState::ALERT);
-        // }
+
+    // ======================================================
+    // 비밀번호 실패 처리
+    // ======================================================
+    if (keypad.isPasswordFailed())
+    {
+        Logger::warn("[AUTH] Password Failed");
+
+        // 실패 횟수 증가
+        failCounter.increase();
+
+        // 실패 알림
+        buzzer.playErrorTone();
+
+        // LCD 표시
+        display.showPasswordFail();
+
+        // 실패 횟수 출력
+        Logger::warn(
+            "[AUTH] Fail Count = " +
+            String(failCounter.getCount())
+        );
+
+        // 5회 이상 실패
+        if (failCounter.isLimitReached())
+        {
+            Logger::error(
+                "[AUTH] Too Many Failures"
+            );
+
+            changeState(
+                LockerState::ALERT
+            );
+        }
+
+        return;
+    }
 }
 
 void StateMachine::handleDoorOpen()
@@ -337,15 +375,23 @@ void StateMachine::handleAlert()
     {
         Logger::error("[FSM] Enter ALERT");
 
+        failCounter.reset();
         buzzer.playAlertTone();
         rgb.showAlert();
         display.showAlert();
 
-        // TODO(조립 후)
-        // 관리자 해제 또는 타이머까지 ALERT 유지
-
         stateJustEntered = false;
-
-        changeState(LockerState::IDLE);
     }
+
+    // TODO(조립 후)
+    // 등록된 RFID 카드 태그 또는
+    // 앱 원격 해제 명령 수신 시
+    // clearAlert() 호출
+}
+
+void StateMachine::clearAlert()
+{
+    Logger::info("[FSM] ALERT Cleared");
+
+    changeState(LockerState::IDLE);
 }

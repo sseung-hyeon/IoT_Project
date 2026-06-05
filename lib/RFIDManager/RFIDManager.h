@@ -9,7 +9,9 @@ public:
     void begin();
 
     bool isCardDetected();
-    bool isCardValid();
+    
+private:
+    bool mockDetected;
 };
 
 #endif

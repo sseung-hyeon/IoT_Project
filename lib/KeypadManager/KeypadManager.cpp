@@ -1,21 +1,139 @@
+#include <Keypad.h>
+
+#include "config.h"
 #include "KeypadManager.h"
 #include "Logger.h"
+
+char keys[4][4] =
+{
+    {'1','2','3','A'},
+    {'4','5','6','B'},
+    {'7','8','9','C'},
+    {'*','0','#','D'}
+};
+
+byte rowPins[4] = 
+{
+    PIN_KEYPAD_R1,
+    PIN_KEYPAD_R2,
+    PIN_KEYPAD_R3,
+    PIN_KEYPAD_R4
+};
+
+byte colPins[4] =
+{
+    PIN_KEYPAD_C1,
+    PIN_KEYPAD_C2,
+    PIN_KEYPAD_C3,
+    PIN_KEYPAD_C4
+};
+
+Keypad keypad(
+    makeKeymap(keys),
+    rowPins,
+    colPins,
+    4,
+    4
+);
 
 void KeypadManager::begin()
 {
     Logger::info("[KEYPAD] Initialized");
 
-    // TODO(조립 후):
-    // 실제 Keypad 라이브러리 초기화
+    enteredPassword = "";
+
+    // 비밀번호 상태 초기화
+    passwordFailed = false;
+}
+
+void KeypadManager::clearInput()
+{
+    enteredPassword = "";
+
+    lastLength = 0;
+}
+
+// MOCK 버전
+uint8_t KeypadManager::getInputLength()
+{
+
+    return enteredPassword.length(); 
 }
 
 bool KeypadManager::isPasswordCorrect()
 {
-    // Logger::info("[MOCK] Password Correct");
-    Serial.println("[MOCK] Keypad Input");
+    char key = keypad.getKey();
 
-    // TODO(조립 후):
-    // 실제 키패드 입력 검증
+    if(!key)
+    {
+        return false;
+    }
 
-    return true;
+    Logger::info(
+        "[KEYPAD] Pressed : " + 
+        String(key)
+    );
+
+    // 숫자 입력
+    if (key >= '0' && key <= '9')
+    {   
+        if (enteredPassword.length() < PASSWORD_LENGTH)
+        {
+            enteredPassword += key;
+        }
+    }
+    // 입력 완료
+    if (enteredPassword.length() == PASSWORD_LENGTH)
+    {
+        Logger::info(
+            "[KEYPAD] Input = " + 
+            enteredPassword
+        );
+
+        // 비밀번호 성공
+        if (enteredPassword == correctPassword)
+        {
+            clearInput();
+
+            return true;
+        }
+        // 비밀번호 실패
+        Logger::warn(
+            "[KEYPAD] Wrong Password"
+        );
+
+        passwordFailed = true;
+
+        clearInput();
+    }
+
+        return false;
+}
+
+bool KeypadManager::hasInputChanged()
+{
+    uint8_t currentLength = 
+        enteredPassword.length();
+
+    if (currentLength != lastLength)
+    {
+        lastLength = currentLength;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool KeypadManager::isPasswordFailed()
+{
+    if (passwordFailed)
+    {
+        // 한 번 읽으면 자동 초기화
+        passwordFailed = false;
+
+        return true;
+    }
+
+    return false;
 }

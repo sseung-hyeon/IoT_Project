@@ -1,26 +1,33 @@
 #include "DoorController.h"
 #include "Logger.h"
+#include "config.h"
 
 void DoorController::begin()
 {
     Logger::info("[DOOR] Initialized");
 
-    //TODO(조립 후):
-    // Servo.attach(PIN_SERVO);
+    // ======================================================
+    // 서보모터 초기화
+    // ======================================================
+
+    servo.attach(PIN_SERVO);
+
+    // 시작 시 잠금 상태
+    servo.write(SERVO_LOCK_ANGLE);
 }
 
 void DoorController::openDoor()
 {
     Logger::info("[MOCK] Door Open");
 
-    // TODO(조립 후):
-    // servo.write(SERVO_UNLOCK_ANGLE);
+    // 잠금 해제
+    servo.write(SERVO_UNLOCK_ANGLE);
 }
 
 void DoorController::closeDoor()
 {
     Logger::info("[MOCK] Door Close");
 
-    // TODO(조립 후):
-    // servo.write(SERVO_LOCK_ANGLE);
+    // 잠금
+    servo.write(SERVO_LOCK_ANGLE);
 }
