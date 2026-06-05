@@ -1,21 +1,44 @@
 #include "UltrasonicSensor.h"
 #include "Logger.h"
+#include "config.h"
 
 void UltrasonicSensor::begin()
 {
     Logger::info("[ULTRASONIC] Initialized");
 
-    // TODO(조립 후):
-    // pinMode(PIN_TRIG, OUTPUT);
-    // pinMode(PIN_ECHO, INPUT);
+    pinMode(PIN_TRIG, OUTPUT);
+    pinMode(PIN_ECHO, INPUT);
 }
 
 bool UltrasonicSensor::hasPackage()
 {
-    Logger::info("[MOCK] Package Detected");
+    // 초음파 발사
+    digitalWrite(PIN_TRIG, LOW);
+    delayMicroseconds(2);
+    digitalWrite(PIN_TRIG, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(PIN_TRIG, LOW);
 
-    // TODO(조립 후):
-    // HC-SR04 거리 측정 구현
+    // 반사시간 측정
+    long duration = pulseIn(PIN_ECHO, HIGH);
 
-    return true;
+    // 거리 계산
+    float distance = duration * 0.034 / 2.0;
+
+    Logger::info(
+        "[ULTRASONIC] Distance = " +
+        String(distance) +
+        " cm"
+    );
+
+    // 택배 존재 여부 판단
+    if (distance <= PACKAGE_DISTANCE_CM)
+    {
+        Logger::info(
+            "[ULTRASONIC] Package Detected"
+        );
+
+        return true;
+    }
+    return false;
 }
