@@ -174,7 +174,7 @@
 #define FIREBASE_KEY_ALERT        "alert"
 #define FIREBASE_KEY_DOOR         "doorOpen"
 #define FIREBASE_KEY_CLEAR_ALERT  "clearAlert"
-
+#define FIREBASE_KEY_LAST_UPDATE  "lastUpdate"
 // ======================================================
 // Firebase Mock
 // ======================================================

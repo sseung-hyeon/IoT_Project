@@ -317,6 +317,8 @@ void StateMachine::handleDoorOpen()
             }
 }
 
+// 택배 존재 여부 확인
+// 무게 측정 및 Firebase 전송 상태로 이동
 void StateMachine::handleMeasure()
 {
     if (stateJustEntered)
@@ -339,9 +341,19 @@ void StateMachine::handleMeasure()
 
             changeState(LockerState::NOTIFY);
         }
+        else
+        {
+            Logger::warn(
+                "[FSM] Package Not Detected"
+            );
+
+            changeState(LockerState::DOOR_CLOSE);
+        }
     }
 }
 
+// ALERT 상태 진입, 경고음 시작, RGB 적색 점등, LCD 경고 출력
+// Firebase ALERT 업로드
 void StateMachine::handleNotify()
 {
     if (stateJustEntered)
