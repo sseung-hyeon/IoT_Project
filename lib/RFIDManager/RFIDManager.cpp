@@ -24,6 +24,18 @@ void RFIDManager::begin()
 
 bool RFIDManager::isCardDetected()
 {
+    // 새로운 RFID 카드 감지
+    if (!mfrc522.PICC_IsNewCardPresent())
+    {
+        return false;
+    }
+
+    // 카드 UID 읽기
+    if (!mfrc522.PICC_ReadCardSerial())
+    {
+        return false;
+    }
+
     Logger::info("[RFID] Card Detected");
 
     // 등록된 카드인지 확인
@@ -33,6 +45,11 @@ bool RFIDManager::isCardDetected()
             "[RFID] Unauthorized Card"
         );
 
+        // RFID 통신 종료
+        // 다음 카드 인식을 위해 정리
+        mfrc522.PICC_HaltA();
+        mfrc522.PCD_StopCrypto1();
+
         return false;
     }
 
@@ -40,6 +57,11 @@ bool RFIDManager::isCardDetected()
         "[RFID] Authorized Card"
     );
 
+    // RFID 통신 종료
+    // 다음 카드 인식을 위해 정리
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    
     return true;    
 }
 
