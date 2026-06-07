@@ -2,13 +2,6 @@
 #include "Logger.h"
 #include "config.h"
 
-static volatile bool gShockDetected = false;
-
-void shockISR()
-{
-    gShockDetected = true;
-}
-
 void ShockSensor::begin()
 {
     Logger::info("[SHOCK] Initialized");

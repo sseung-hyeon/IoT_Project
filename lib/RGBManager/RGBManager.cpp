@@ -27,6 +27,14 @@ void RGBManager::showNormal()
 
     pixels.clear();
 
+    // 정상 대기 상태 [녹색]
+    pixels.setPixelColor(
+        0,
+        pixels.Color(0, 60, 0)
+    );
+
+    pixels.show();
+
 }
 
 void RGBManager::showSuccess()

@@ -11,7 +11,7 @@ void BuzzerManager::begin()
 
 void BuzzerManager::playSuccessTone()
 {
-    Logger::info("[MOCK] Success Tone");
+    Logger::info("[BUZZER] Success Tone");
 
     // 인증 성공
     tone(PIN_BUZZER, 1500, 80);
@@ -25,7 +25,7 @@ void BuzzerManager::playSuccessTone()
 
 void BuzzerManager::playErrorTone()
 {
-    Logger::info("[MOCK] Error Tone");
+    Logger::info("[BUZZER] Error Tone");
 
     // 인증 실패
     tone(PIN_BUZZER, 500, 600);
@@ -33,7 +33,7 @@ void BuzzerManager::playErrorTone()
 
 void BuzzerManager::playAlertTone()
 {
-    Logger::info("[MOCK] Alert Tone");
+    Logger::info("[BUZZER] Alert Tone");
 
     // 경보음
     for (int i = 0; i < 5; i++)
