@@ -36,21 +36,14 @@ bool WiFiManager::sendPackageInfo(float weightKg)
     );
 
     Logger::info(
-    "[FIREBASE] Upload Package"
-    );
-
-    Logger::info(
-        "Path : " +
-        String(FIREBASE_LOCKER_PATH)
-    );
-
-    Logger::info(
         "weightKg = " +
         String(weightKg)
     );
 
-    Logger::info(
-        "packageDetected = true"
+    // ESP에 택배 무게 전송
+    Serial1.println(
+        "PACKAGE:" +
+        String(weightKg, 2)
     );
 
     return true;
@@ -58,12 +51,8 @@ bool WiFiManager::sendPackageInfo(float weightKg)
 
 bool WiFiManager::isAlertClearRequested()
 {
-    // 조립후 파이어베이스 값 확인
-
     return false;
 }
-
-// Firebase ALERT 상태 업로드
 
 bool WiFiManager::uploadAlertStatus(bool alert)
 {
@@ -72,15 +61,17 @@ bool WiFiManager::uploadAlertStatus(bool alert)
         String(alert)
     );
 
-    Logger::info(
-    "Firebase Key : " +
-    String(FIREBASE_KEY_ALERT)
-    );
+    // ALERT 상태 전송
+    if (alert)
+    {
+        Serial1.println(
+            "ALERT:SHOCK"
+        );
+    }
 
-    return true;
-}
+        return true;
+    }
 
-// Firebase 문 상태 업로드
 bool WiFiManager::uploadDoorStatus(bool open)
 {
     Logger::info(
@@ -88,13 +79,19 @@ bool WiFiManager::uploadDoorStatus(bool open)
         String(open)
     );
 
-    Logger::info(
-    "Firebase Key : " +
-    String(FIREBASE_KEY_DOOR)
-    );
-
-    // TODO(ESP + Firebase 구현 후)
-    // Firebase /locker/doorOpen 업데이트
+    // 문 상태 전송
+    if (open)
+    {
+        Serial1.println(
+            "STATE:OPEN"
+        );
+    }
+    else
+    {
+        Serial1.println(
+            "STATE:CLOSED"
+        );
+    }
 
     return true;
 }
@@ -106,16 +103,27 @@ bool WiFiManager::clearAlertRequest()
         "[WIFI] Clear Alert Reset"
     );
 
-    Logger::info(
-    "Firebase Key : " +
-    String(FIREBASE_KEY_CLEAR_ALERT)
-    );
-
-    Logger::info(
-        "Value : false"
-    );
-    // TODO(ESP + Firebase 구현 후)
-    // Firebase /locker/clearAlert = false
-
     return true;
+}
+
+// ESP 명령 수신 여부 확인
+bool WiFiManager::hasIncomingCommand()
+{
+    return Serial1.available() > 0;
+}
+
+// ESP 명령 읽기
+String WiFiManager::getIncomingCommand()
+{
+    String command =
+        Serial1.readStringUntil('\n');
+
+    command.trim();
+
+    Logger::info(
+        "[WIFI] RX : " +
+        command
+    );
+
+    return command;
 }

@@ -22,6 +22,22 @@ void RFIDManager::begin()
     // RC522 초기화
 }
 
+// 카드 존재 여부 확인
+bool RFIDManager::isCardPresent()
+{
+    if (!mfrc522.PICC_IsNewCardPresent())
+    {
+        return false;
+    }
+
+    if (!mfrc522.PICC_ReadCardSerial())
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool RFIDManager::isCardDetected()
 {
     // 새로운 RFID 카드 감지

@@ -85,7 +85,7 @@
 
 #define PIN_NEOPIXEL     10         
 
-#define NUM_PIXELS       1          // LED 개수 1개
+#define NUM_PIXELS       48          // LED 개수 1개
 
 // ======================================================
 // ESP-01 (UART)

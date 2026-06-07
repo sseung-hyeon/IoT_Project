@@ -10,6 +10,8 @@ public:
 
     bool isCardDetected();
 
+    bool isCardPresent();
+
 private:
     bool mockDetected;
 

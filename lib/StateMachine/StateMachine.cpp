@@ -54,6 +54,66 @@ void StateMachine::begin()
 
 void StateMachine::update()
 {
+    // ESP 명령 수신 처리
+    if (wifi.hasIncomingCommand())
+    {
+        String command =
+            wifi.getIncomingCommand();
+
+        // 문 열기
+        if (command == "OPEN")
+        {
+            Logger::info(
+                "[APP] OPEN Command"
+            );
+
+            changeState(
+                LockerState::DOOR_OPEN
+            );
+
+            return;
+        }
+
+        // 문 닫기
+        if (command == "CLOSE")
+        {
+            Logger::info(
+                "[APP] CLOSE Command"
+            );
+
+            changeState(
+                LockerState::DOOR_CLOSE
+            );
+
+            return;
+        }
+
+        // ALERT 해제
+        if (command == "RESET_ALERT")
+        {
+            Logger::info(
+                "[APP] RESET_ALERT"
+            );
+
+            clearAlert();
+
+            return;
+        }
+
+        // 상태 요청
+        if (command == "STATUS")
+        {
+            Logger::info(
+                "[APP] STATUS Request"
+            );
+
+            wifi.uploadDoorStatus(
+                currentState ==
+                LockerState::DOOR_OPEN
+            );
+        }
+    }
+
     // ALERT 반복음 갱신
     buzzer.updateAlertTone();
 
@@ -406,18 +466,6 @@ void StateMachine::handleAlert()
         wifi.uploadAlertStatus(true);
 
         stateJustEntered = false;
-    }
-
-    // 앱에서 ALERT 해제 요청 확인
-    if (wifi.isAlertClearRequested())
-    {
-        Logger::info(
-            "[ALERT] Remote Clear Request"
-        );
-
-        clearAlert();
-
-        return;
     }
 }
 
