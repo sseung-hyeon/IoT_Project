@@ -10,7 +10,7 @@ void WeightSensor::begin()
     scale.begin(PIN_HX711_DOUT, PIN_HX711_SCK);
 
     // 임시 보정값, 실제 측정으로 수정 필요
-    scale.set_scale(1000.0f);
+    scale.set_scale(420.0f);
 
     //영점 설정, 현재 무게를 0으로 설정
     scale.tare();
@@ -18,6 +18,16 @@ void WeightSensor::begin()
 
 float WeightSensor::getWeightKg()
 {
+    // HX711 연결 상태 확인
+    if (!scale.is_ready())
+    {
+        Logger::warn(
+            "[WEIGHT] HX711 Not Ready"
+        );
+
+        return 0.0f;
+    }
+    
     float weight =
         scale.get_units(5);
         

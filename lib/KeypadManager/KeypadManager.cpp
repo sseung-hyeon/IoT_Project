@@ -74,6 +74,18 @@ bool KeypadManager::isPasswordCorrect()
         String(key)
     );
 
+    // # 입력 시 전체 입력 초기화
+    if (key == '#')
+    {
+        Logger::info(
+            "[KEYPAD] Input Cleared"
+        );
+
+        clearInput();
+
+        return false;
+    }
+
     // 숫자 입력
     if (key >= '0' && key <= '9')
     {   

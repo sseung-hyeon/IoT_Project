@@ -20,7 +20,17 @@ bool UltrasonicSensor::hasPackage()
     digitalWrite(PIN_TRIG, LOW);
 
     // 반사시간 측정
-    long duration = pulseIn(PIN_ECHO, HIGH);
+    long duration = pulseIn(PIN_ECHO, HIGH, 30000UL);
+
+    // 초음파 응답 없음
+    if (duration == 0)
+    {
+        Logger::warn(
+            "[ULTRASONIC] Timeout"
+        );
+
+        return false;
+    }
 
     // 거리 계산
     float distance = duration * 0.034 / 2.0;
