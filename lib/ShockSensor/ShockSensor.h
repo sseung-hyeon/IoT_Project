@@ -10,6 +10,10 @@ public:
 
     bool isShockDetected();
 
+    void setShockLimit(int value);
+
+    int getShockLimit() const;
+
 private:
     // 충격 누적 카운트
     int shockCount = 0;
@@ -21,7 +25,7 @@ private:
     static const unsigned long SHOCK_WINDOW_MS = 3000UL;
 
     // ALERT 발생 충격 횟수
-    static const int SHOCK_LIMIT = 5;
+    int shockLimit = 5;
 };
 
 #endif

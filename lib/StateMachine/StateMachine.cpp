@@ -155,6 +155,82 @@ void StateMachine::update()
 
             return;
         }
+        
+        // SECURITY 설정
+        if (command.startsWith("SECURITY:"))
+        {
+            String data =
+                command.substring(9);
+
+            int shockPos =
+                data.indexOf("SHOCK=");
+
+            int doorPos =
+                data.indexOf("DOOR=");
+
+            int failPos =
+                data.indexOf("FAIL=");
+
+            if (
+                shockPos >= 0 &&
+                doorPos >= 0 &&
+                failPos >= 0
+            )
+            {
+                int shock =
+                    data.substring(
+                        shockPos + 6,
+                        data.indexOf(",", shockPos)
+                    ).toInt();
+
+                int door =
+                    data.substring(
+                        doorPos + 5,
+                        data.indexOf(",", doorPos)
+                    ).toInt();
+
+                int fail =
+                    data.substring(
+                        failPos + 5
+                    ).toInt();
+
+                shockSensor.setShockLimit(
+                    shock
+                );
+
+                failCounter.setMaxFailCount(
+                    fail
+                );
+
+                doorOpenLimitMs =
+                    (unsigned long)door * 1000UL;
+
+                Serial1.println(
+                    "SECURITY:UPDATED"
+                );
+
+                Logger::info(
+                    "[SECURITY] Updated"
+                );
+
+                Logger::info(
+                    "Shock=" +
+                    String(shock)
+                );
+
+                Logger::info(
+                    "Door=" +
+                    String(door)
+                );
+
+                Logger::info(
+                    "Fail=" +
+                    String(fail)
+                );
+            }
+
+            return;
+        }
     }
 
     // ALERT 반복음 갱신
@@ -444,7 +520,7 @@ void StateMachine::handleDoorOpen()
         }
         
         //문을 일정시간 열어둠
-        if (millis() - doorOpenStartTime > DOOR_OPEN_TIMEOUT_MS)
+        if (millis() - doorOpenStartTime > doorOpenLimitMs)
             {
                 Logger::info("[FSM] Door Open Timeout");
 

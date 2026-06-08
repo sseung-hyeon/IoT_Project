@@ -39,10 +39,7 @@ bool ShockSensor::isShockDetected()
             );
 
             // 제한 횟수 초과
-            if (
-                shockCount >=
-                SHOCK_LIMIT
-            )
+            if (shockCount >= shockLimit)
             {
                 Logger::error(
                     "[SHOCK] ALERT Triggered"
@@ -58,4 +55,14 @@ bool ShockSensor::isShockDetected()
     }
 
     return false;
+}
+
+void ShockSensor::setShockLimit(int value)
+{
+    shockLimit = value;
+}
+
+int ShockSensor::getShockLimit() const
+{
+    return shockLimit;
 }

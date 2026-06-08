@@ -4,10 +4,7 @@
 #include <Arduino.h>
 #include <config.h>
 
-// ======================================================
 // FSM 상태 정의
-// ======================================================
-
 enum class LockerState
 {
     IDLE,
@@ -40,6 +37,8 @@ private:
     float lastMeasuredWeight;
     unsigned long authStartTime; // 인증 타임아웃 측정용
     unsigned long doorOpenStartTime; // 문 열림 유지 시간 측정용
+    // 앱에서 변경 가능한 문 열림 제한시간
+    unsigned long doorOpenLimitMs = DOOR_OPEN_TIMEOUT_MS;
 
     void handleIdle();
     void handleAuthCard();
@@ -50,6 +49,8 @@ private:
     void handleDoorClose();
     void handleAlert();
     void clearAlert();
+
+
 };
 
 #endif

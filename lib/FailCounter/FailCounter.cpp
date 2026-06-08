@@ -26,5 +26,17 @@ int FailCounter::getCount() const
 
 bool FailCounter::isLimitReached() const
 {
-    return failCount >= MAX_AUTH_FAIL_COUNT;
+    return failCount >= maxFailCount;
+}
+
+void FailCounter::setMaxFailCount(
+    int value
+)
+{
+    maxFailCount = value;
+}
+
+int FailCounter::getMaxFailCount() const
+{
+    return maxFailCount;
 }
