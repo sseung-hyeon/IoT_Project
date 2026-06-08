@@ -11,6 +11,7 @@ public:
 
     float getWeightKg();
 
+    bool hasPackage();
 private:
     // HX711 객체
     HX711 scale;

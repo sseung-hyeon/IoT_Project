@@ -107,10 +107,53 @@ void StateMachine::update()
                 "[APP] STATUS Request"
             );
 
-            wifi.uploadDoorStatus(
+            bool itemPresent =
+                ultrasonic.hasPackage()
+                ||
+                weightSensor.hasPackage();
+
+            wifi.sendStatus(
                 currentState ==
-                LockerState::DOOR_OPEN
+                LockerState::DOOR_OPEN,
+                itemPresent,
+                keypad.hasOtp()
             );
+
+            return;
+        }
+        // OTP 설정
+        if (command.startsWith("OTP:"))
+        {
+            if (command == "OTP:CANCEL")
+            {
+                keypad.clearOtp();
+
+                Serial1.println(
+                    "OTP:CLEARED"
+                );
+
+                return;
+            }
+
+            String otp =
+                command.substring(4);
+
+            if (otp.length() != PASSWORD_LENGTH)
+            {
+                Logger::warn(
+                    "[OTP] Invalid Length"
+                );
+
+                return;
+            }
+
+            keypad.setOtp(otp);
+
+            Serial1.println(
+                "OTP:READY"
+            );
+
+            return;
         }
     }
 
@@ -239,30 +282,56 @@ void StateMachine::handleAuthCard()
         stateJustEntered = false;
     }
 
-    if (rfid.isCardDetected())
+    if (rfid.isCardPresent())
     {
-        Logger::info("[FSM] RFID Success");
+        // 등록 카드
+        if (rfid.isAuthorizedCard())
+        {
+            Logger::info(
+                "[FSM] RFID Success"
+            );
 
-        buzzer.playSuccessTone();
-        rgb.showSuccess();
-        display.showCardSuccess();
+            buzzer.playSuccessTone();
+            rgb.showSuccess();
+            display.showCardSuccess();
 
-        changeState(LockerState::AUTH_PIN);
+            rfid.endSession();
+
+            changeState(
+                LockerState::AUTH_PIN
+            );
+
+            return;
+        }
+
+        Logger::warn(
+            "[RFID] Unauthorized Card"
+        );
+
+        failCounter.increase();
+
+        buzzer.playErrorTone();
+
+        display.showCardFail();
+
+        rgb.showError();
+
+        Logger::warn(
+            "[AUTH] Fail Count = " +
+            String(failCounter.getCount())
+        );
+
+        rfid.endSession();
+
+        if (failCounter.isLimitReached())
+        {
+            changeState(
+                LockerState::ALERT
+            );
+        }
+
+        return;
     }
-    // TODO(조립 후)
-    //
-    // 카드 인식 실패 시
-    //
-    // failCounter.increase();
-    //
-    // display.showCardFail();
-    //
-    // buzzer.playErrorTone();
-    //
-    // if (failCounter.isLimitReached())
-    // {
-    //     changeState(LockerState::ALERT);
-    // }
 }
 
 void StateMachine::handleAuthPin()
@@ -306,6 +375,12 @@ void StateMachine::handleAuthPin()
 
         failCounter.reset();
 
+        keypad.clearOtp();
+
+        Serial1.println(
+            "OTP:USED"
+        );
+        
         changeState(LockerState::DOOR_OPEN);
 
         return;
@@ -378,7 +453,7 @@ void StateMachine::handleDoorOpen()
 }
 
 // 택배 존재 여부 확인
-// 무게 측정 및 Firebase 전송 상태로 이동
+// 초음파 + 무게센서
 void StateMachine::handleMeasure()
 {
     if (stateJustEntered)
@@ -387,7 +462,7 @@ void StateMachine::handleMeasure()
 
         stateJustEntered = false;
 
-        if (ultrasonic.hasPackage())
+        if (ultrasonic.hasPackage() || weightSensor.hasPackage())
         {
             Logger::info("[FSM] Package Confirmed");
 
@@ -412,8 +487,8 @@ void StateMachine::handleMeasure()
     }
 }
 
-// ALERT 상태 진입, 경고음 시작, RGB 적색 점등, LCD 경고 출력
-// Firebase ALERT 업로드
+// 택배 정보 전송
+// MQTT/ESP 전송 후 문 닫힘 상태로 이동
 void StateMachine::handleNotify()
 {
     if (stateJustEntered)

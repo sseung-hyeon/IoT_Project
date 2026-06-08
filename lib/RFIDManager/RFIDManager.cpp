@@ -96,21 +96,8 @@ bool RFIDManager::isAuthorizedCard()
         mfrc522.uid.uidByte[3] == RFID_UID_3;
 }
 
-// TODO(하드웨어 연결 후)
-//
-// #include <SPI.h>
-// #include <MFRC522.h>
-//
-// MFRC522 mfrc522(PIN_RFID_SS, PIN_RFID_RST);
-//
-// begin()
-// {
-//     SPI.begin();
-//     mfrc522.PCD_Init();
-// }
-//
-// isCardDetected()
-// {
-//     return mfrc522.PICC_IsNewCardPresent()
-//         && mfrc522.PICC_ReadCardSerial();
-// }
+void RFIDManager::endSession()
+{
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+}

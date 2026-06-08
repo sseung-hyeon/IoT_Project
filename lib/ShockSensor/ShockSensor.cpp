@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "config.h"
 
+
 void ShockSensor::begin()
 {
     Logger::info("[SHOCK] Initialized");
@@ -14,16 +15,47 @@ bool ShockSensor::isShockDetected()
     // 충격 감지
     if (digitalRead(PIN_SHOCK) == LOW)
     {
-        // 노이즈 제거를 위해 20ms 후 재확인
         delay(SHOCK_DEBOUNCE_MS);
 
         if (digitalRead(PIN_SHOCK) == LOW)
         {
-            Logger::warn("[SHOCK] Shock Detected");
+            unsigned long now = millis();
 
-            return true;
+            // 시간창 초기화
+            if (
+                now - shockWindowStart >
+                SHOCK_WINDOW_MS
+            )
+            {
+                shockWindowStart = now;
+                shockCount = 0;
+            }
+
+            shockCount++;
+
+            Logger::warn(
+                "[SHOCK] Count = " +
+                String(shockCount)
+            );
+
+            // 제한 횟수 초과
+            if (
+                shockCount >=
+                SHOCK_LIMIT
+            )
+            {
+                Logger::error(
+                    "[SHOCK] ALERT Triggered"
+                );
+
+                shockCount = 0;
+
+                return true;
+            }
+
+            delay(50);
         }
-    }    
+    }
 
     return false;
 }

@@ -20,7 +20,7 @@ public:
     // ESP 명령 읽기
     String getIncomingCommand();
 
-    
+
     // Firebase 상태 업로드
 
     // 경보 상태 업로드
@@ -31,6 +31,13 @@ public:
 
     // 앱 clearAlert 플래그 초기화
     bool clearAlertRequest(); 
+
+    // 상태 패킷 전송
+    bool sendStatus(
+        bool doorOpen,
+        bool itemPresent,
+        bool otpActive
+    );
 };
 
 #endif

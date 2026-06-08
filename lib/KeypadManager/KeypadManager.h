@@ -18,6 +18,15 @@ public:
 
     bool hasInputChanged();
 
+    // 앱에서 전달받은 OTP 설정
+    void setOtp(const String& otp);
+
+    // OTP 제거
+    void clearOtp();
+
+    // OTP 존재 여부
+    bool hasOtp() const;
+
 private: 
     String enteredPassword;
 
@@ -25,7 +34,8 @@ private:
 
     uint8_t lastLength = 0;
 
-    const String correctPassword = "1234"; // 비밀번호 1234
+    // 현재 활성 OTP
+    String currentOtp = "";
 };
 
 #endif

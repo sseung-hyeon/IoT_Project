@@ -39,3 +39,10 @@ float WeightSensor::getWeightKg()
 
     return weight;
 }
+
+bool WeightSensor::hasPackage()
+{
+    float weight = getWeightKg();
+
+    return weight > 0.05f;
+}

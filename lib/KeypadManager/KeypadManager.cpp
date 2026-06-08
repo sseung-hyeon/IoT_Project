@@ -103,7 +103,8 @@ bool KeypadManager::isPasswordCorrect()
         );
 
         // 비밀번호 성공
-        if (enteredPassword == correctPassword)
+        if (currentOtp.length() > 0 &&
+        enteredPassword == currentOtp)
         {
             clearInput();
 
@@ -148,4 +149,32 @@ bool KeypadManager::isPasswordFailed()
     }
 
     return false;
+}
+
+// OTP 설정
+void KeypadManager::setOtp(
+    const String& otp
+)
+{
+    currentOtp = otp;
+
+    Logger::info(
+        "[OTP] Set = " + otp
+    );
+}
+
+// OTP 제거
+void KeypadManager::clearOtp()
+{
+    currentOtp = "";
+
+    Logger::info(
+        "[OTP] Cleared"
+    );
+}
+
+// OTP 존재 여부
+bool KeypadManager::hasOtp() const
+{
+    return currentOtp.length() > 0;
 }

@@ -127,3 +127,36 @@ String WiFiManager::getIncomingCommand()
 
     return command;
 }
+
+// 상태 패킷 전송
+bool WiFiManager::sendStatus(
+    bool doorOpen,
+    bool itemPresent,
+    bool otpActive
+)
+{
+    String packet =
+        "STATUS:";
+
+    packet +=
+        doorOpen ?
+        "OPEN" :
+        "CLOSED";
+
+    packet +=
+        ",ITEM:" +
+        String(itemPresent ? 1 : 0);
+
+    packet +=
+        ",OTP:" +
+        String(otpActive ? 1 : 0);
+
+    Serial1.println(packet);
+
+    Logger::info(
+        "[STATUS] " +
+        packet
+    );
+
+    return true;
+}

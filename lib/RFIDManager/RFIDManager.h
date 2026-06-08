@@ -12,10 +12,12 @@ public:
 
     bool isCardPresent();
 
-private:
-    bool mockDetected;
-
     bool isAuthorizedCard();
+
+    void endSession();
+
+private:
+
 };
 
 #endif
