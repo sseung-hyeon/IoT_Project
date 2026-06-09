@@ -31,6 +31,14 @@ public:
 
     const char* stateToString(LockerState state);
 
+    // EEPROM 저장용 보안 설정
+    struct SecuritySettings
+    {
+        int shockLimit;
+        int maxFailCount;
+        unsigned long doorOpenLimitMs;
+    };
+
 private:
     LockerState currentState;
     bool stateJustEntered;
@@ -50,7 +58,11 @@ private:
     void handleAlert();
     void clearAlert();
 
+    // EEPROM 저장
+    void saveSecuritySettings();
 
+    // EEPROM 로드
+    void loadSecuritySettings();
 };
 
 #endif

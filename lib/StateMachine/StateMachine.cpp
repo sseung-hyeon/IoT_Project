@@ -12,6 +12,7 @@
 #include "DisplayManager.h"
 #include "FailCounter.h"
 
+#include <EEPROM.h>
 
 static RFIDManager rfid;
 static KeypadManager keypad;
@@ -50,6 +51,7 @@ void StateMachine::begin()
     rgb.begin();
     display.begin();
     failCounter.reset();
+    loadSecuritySettings();
 }
 
 void StateMachine::update()
@@ -132,6 +134,16 @@ void StateMachine::update()
                     "OTP:CLEARED"
                 );
 
+                if (
+                    currentState ==
+                    LockerState::AUTH_PIN
+                )
+                {
+                    changeState(
+                        LockerState::IDLE
+                    );
+                }
+
                 return;
             }
 
@@ -155,12 +167,26 @@ void StateMachine::update()
 
             return;
         }
-        
+
         // SECURITY 설정
         if (command.startsWith("SECURITY:"))
         {
             String data =
                 command.substring(9);
+
+            // SECURITY 형식 검증
+            if (
+                data.indexOf("SHOCK=") < 0 ||
+                data.indexOf("DOOR=") < 0 ||
+                data.indexOf("FAIL=") < 0
+            )
+            {
+                Logger::warn(
+                    "[SECURITY] Invalid Format"
+                );
+
+                return;
+            }                
 
             int shockPos =
                 data.indexOf("SHOCK=");
@@ -193,7 +219,46 @@ void StateMachine::update()
                     data.substring(
                         failPos + 5
                     ).toInt();
+                
+                // SHOCK 범위 확인
+                if (
+                    shock < 1 ||
+                    shock > 20
+                )
+                {
+                    Logger::warn(
+                        "[SECURITY] Invalid Shock"
+                    );
 
+                    return;
+                }
+
+                // DOOR 범위 확인
+                if (
+                    door < 5 ||
+                    door > 300
+                )
+                {
+                    Logger::warn(
+                        "[SECURITY] Invalid Door"
+                    );
+
+                    return;
+                }
+
+                // FAIL 범위 확인
+                if (
+                    fail < 1 ||
+                    fail > 20
+                )
+                {
+                    Logger::warn(
+                        "[SECURITY] Invalid Fail"
+                    );
+
+                    return;
+                }
+                
                 shockSensor.setShockLimit(
                     shock
                 );
@@ -204,6 +269,8 @@ void StateMachine::update()
 
                 doorOpenLimitMs =
                     (unsigned long)door * 1000UL;
+
+                saveSecuritySettings();
 
                 Serial1.println(
                     "SECURITY:UPDATED"
@@ -631,4 +698,65 @@ void StateMachine::clearAlert()
     wifi.clearAlertRequest();
 
     changeState(LockerState::IDLE);
+}
+
+void StateMachine::saveSecuritySettings()
+{
+    SecuritySettings settings;
+
+    settings.shockLimit =
+        shockSensor.getShockLimit();
+
+    settings.maxFailCount =
+        failCounter.getMaxFailCount();
+
+    settings.doorOpenLimitMs =
+        doorOpenLimitMs;
+
+    EEPROM.put(
+        0,
+        settings
+    );
+
+    Logger::info(
+        "[EEPROM] Security Saved"
+    );
+}
+
+void StateMachine::loadSecuritySettings()
+{
+    SecuritySettings settings;
+
+    EEPROM.get(
+        0,
+        settings
+    );
+
+    // 초기 EEPROM 방어
+    if (
+        settings.shockLimit < 1 ||
+        settings.shockLimit > 20
+    )
+    {
+        Logger::warn(
+            "[EEPROM] Default Security"
+        );
+
+        return;
+    }
+
+    shockSensor.setShockLimit(
+        settings.shockLimit
+    );
+
+    failCounter.setMaxFailCount(
+        settings.maxFailCount
+    );
+
+    doorOpenLimitMs =
+        settings.doorOpenLimitMs;
+
+    Logger::info(
+        "[EEPROM] Security Loaded"
+    );
 }
